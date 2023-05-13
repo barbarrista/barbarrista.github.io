@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="">
+    </head>
+    <body>
+        <div class="container mt-5 mb-5">
+            <div class="row justify-content-center">
+                <div class="col-6">
+                    <form>
+                        <div class="card p-3 mt-3 d-none" id="drugBundle">
+                            <div class="col mb-3">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <label class="form-label">Название препарата:</label>
+                                    </div>
+                                    <div class="col-md-auto mb-3">
+                                        <button type="button" id="deleteButton" class="btn btn-sm btn-outline-danger disabled">
+                                            <i class="bi bi-trash mb-4" style="font-size: 20px;"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <input type="text" class="form-control" id="drugName">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Цена за 1 шт. с НДС:</label>
+                                <input type="number" step="0.01" class="form-control" id="costWithVat">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Сумма НДС:</label>
+                                <input type="number" step="0.01" class="form-control" id="vatSum">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Список GTIN:</label>
+                                <textarea class="form-control" oninput="onInputToTextArea(this)" onblur="onBlurTextArea(this)" rows=5 id="gtinList"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="card p-3 mt-3" id="drugBundle1">
+                                <div class="col mb-3">
+                                    <div class="row align-items-center">
+                                        <div class="col">
+                                            <label class="form-label">Название препарата:</label>
+                                        </div>
+                                        <div class="col-md-auto mb-3">
+                                            <button type="button" id="deleteButton1" class="btn btn-sm btn-outline-danger disabled">
+                                                <i class="bi bi-trash mb-4" style="font-size: 20px;"></i>
+                                            </button>
+                                        </div>
+                                </div>
+                                    <input type="text" class="form-control" id="drugName1">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Цена за 1 шт. с НДС:</label>
+                                <input type="number" step="0.01" class="form-control" id="costWithVat1">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Сумма НДС:</label>
+                                <input type="number" step="0.01" class="form-control" id="vatSum1">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Список GTIN:</label>
+                                <textarea class="form-control" oninput="onInputToTextArea(this)" onblur="onBlurTextArea(this)" rows=5 id="gtinList1"></textarea>
+                            </div>
+                        </div>
+                        <div id="buttonsGroup">
+                            <div class="text-center mt-3 mb-3">
+                                <button type="button" class="btn btn-success" onclick="addNewMedicament()">Добавить препарат</button>
+                            </div>
+                            <div class="text-center mt-3 mb-3">
+                                <button type="button" class="btn btn-dark" onclick="makeJSON()">Создать JSON</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script>
+            let medicamentCounter = 1
+            let textAreaValue = ""
+
+            function addNewMedicament() {
+                cloneElement()
+                medicamentCounter += 1
+            }
+
+            function setNewId(number, node) {
+                node.id = node.id + number
+            }
+
+            function cloneElement() {
+                const nextMedicamentCounter = medicamentCounter + 1
+                const prevElementId = `drugBundle${medicamentCounter}`
+                const buttonsGroupNode = document.getElementById("buttonsGroup")
+                const existingElement = document.getElementById("drugBundle")
+                const clonnedElement = existingElement.cloneNode(true)
+                const drugNameNode = clonnedElement.querySelector("input#drugName")
+                const costWithVatNode = clonnedElement.querySelector("input#costWithVat")
+                const vatSumNode = clonnedElement.querySelector("input#vatSum")
+                const gtinListNode = clonnedElement.querySelector("textarea#gtinList")
+                const deleteButtonNode = clonnedElement.querySelector("button#deleteButton")
+
+                const nodes = [
+                    clonnedElement,
+                    drugNameNode,
+                    costWithVatNode,
+                    vatSumNode,
+                    gtinListNode,
+                    deleteButtonNode
+                ]
+
+                for (index in nodes) {
+                    setNewId(nextMedicamentCounter, nodes[index])
+                }
+                clonnedElement.classList.remove("d-none")
+                deleteButtonNode.classList.remove("disabled")
+                deleteButtonNode.onclick = function () {
+                    removeElement(nextMedicamentCounter)
+                }
+
+                const bundleNodes = getBundleNodes()
+                lastElement = bundleNodes[bundleNodes.length - 1]
+                lastElement.parentNode.insertBefore(clonnedElement, buttonsGroupNode)
+                window.scrollTo(0, document.body.scrollHeight)
+            }
+
+            function removeElement(number) {
+                const elementId = `drugBundle${number}`
+                const element = document.getElementById(elementId)
+                element.remove()     
+            }
+     
+
+            function onBlurTextArea(node) {
+                textAreaValue = ""
+            }
+
+            function onInputToTextArea(node) {
+                if (node.value.trim("\n").length > textAreaValue.trim("\n").length){
+                    textAreaValue = node.value + "\n"
+                    node.value = textAreaValue
+                    console.log(textAreaValue)
+                } else {
+                    textAreaValue = node.value
+                }
+            }
+
+            
+            function getBundleNodes() {
+                return document.querySelectorAll("div[id^='drugBundle']:not([id='drugBundle'])")   
+            }
+
+            function makeJSON(){
+
+                let medicamentDtos = []
+                bundleNodes = Array.from(getBundleNodes())
+                
+                for (index in bundleNodes) {
+                    item = bundleNodes[index]
+                    dto = getDataFromNode(item)
+                    if (dto.isFulfilled){
+                        medicamentDtos.push(dto)
+                    }
+                }
+                if (medicamentDtos.length == 0) {
+                    alert("Заполните данные!")
+                    return
+                }
+                text = JSON.stringify(medicamentDtos)
+                downloadFile(filename=crypto.randomUUID(), text=text)
+            }
+
+            function getDataFromNode(node){
+                console.log(node)
+                const drugNameNode = node.querySelector("input[id^='drugName']")
+                const costWithVatNode = node.querySelector("input[id^='costWithVat']")
+                const vatSumNode = node.querySelector("input[id^='vatSum']")
+                const gtinListNode = node.querySelector("textarea[id^='gtinList']")
+                return new MedicamentDTO(
+                    name=drugNameNode.value.trim(),
+                    costWithVat=costWithVatNode.value.trim(),
+                    vatSum=vatSumNode.value.trim(),
+                    gtins=gtinListNode.value.trim().split("\n"),
+                )
+            }
+
+            class MedicamentDTO {
+                /** @type {string} */
+                name
+
+                /** @type {Number} */
+                costWithVat
+
+                /** @type {Number} */
+                vatSum
+                
+                /** @type {List[string]} */
+                gtins
+                
+                constructor(name, costWithVat, vatSum, gtins) {
+                    this.name = name
+                    this.costWithVat = costWithVat
+                    this.vatSum = vatSum
+                    this.gtins = gtins
+                }
+
+                get isFulfilled() {
+                    return (
+                        (this.name != null && this.name != "") &&
+                        (this.costWithVat != null && this.costWithVat != "") &&
+                        (this.vatSum != null && this.vatSum != "") &&
+                        (this.gtins != null && this.gtins.length !=0)
+                    )
+                }
+            }
+
+            function downloadFile(filename, text) {
+                var element = document.createElement('a');
+                element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(text));
+                element.setAttribute('download', filename);
+
+                element.style.display = 'none';
+                document.body.appendChild(element);
+
+                element.click();
+
+                document.body.removeChild(element);
+                }
+        </script>
+    </body>
+</html>
